@@ -23,7 +23,7 @@ Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)  
 
 void init();
-void render();
+void render(Vector2D coord);
 
 float x_pos;
 float y_pos;
@@ -36,11 +36,29 @@ int main(){
     while (true) {
     
         Vector2D coord = joystick.get_mapped_coord();
-        render();
+        render(coord);
         thread_sleep_for(1000/FPS);
 
     }
-    
+}
+
+void init() {
+
+    joystick.init();        // set centre of the joystick
+    lcd.init(LPH7366_1);    // initialise the lcd
+    lcd.setContrast(0.55);  // set contrast to 55%
+    lcd.setBrightness(0.5); // set brightness
+
+}
+
+void render(Vector2D coord) {
+
+    lcd.clear();  
+    bird(lcd, coord);
+    lcd.refresh();
+
+}
+
     /*while (1) {
           // read the joystick to get the x- and y- values
         Vector2D coord = joystick.get_mapped_coord(); 
@@ -65,21 +83,3 @@ int main(){
         
         ThisThread::sleep_for(30ms);
     } */
-}
-
-void init() {
-
-    joystick.init();        // set centre of the joystick
-    lcd.init(LPH7366_1);    // initialise the lcd
-    lcd.setContrast(0.55);  // set contrast to 55%
-    lcd.setBrightness(0.5); // set brightness
-
-}
-
-void render() {
-
-    lcd.clear();  
-    bird(lcd);
-    lcd.refresh();
-
-}
