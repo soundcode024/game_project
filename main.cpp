@@ -35,6 +35,7 @@ int main(){
 
     while (true) {
     
+        Vector2D coord = joystick.get_mapped_coord();
         render();
         thread_sleep_for(1000/FPS);
 
@@ -78,7 +79,7 @@ void init() {
 void render() {
 
     lcd.clear();  
-    bird();
+    bird(lcd);
     lcd.refresh();
 
 }
