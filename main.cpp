@@ -14,23 +14,33 @@
 #include "mbed.h"
 #include "Joystick.h" 
 #include "N5110.h"
+#include "bird.h"
+#include "struts.h"
 
-//                  y     x
-Joystick joystick(PC_1, PC_0);  //attach and create joystick object
+#define FPS 12
 
-//Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)  
-N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10);
+Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
+N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)  
+
+void init();
+void render();
 
 float x_pos;
 float y_pos;
 
 int main(){
-    joystick.init();
-    lcd.init(LPH7366_1);        //initialise for LPH7366-1 LCD (Options are LPH7366_1 and LPH7366_6)
-    lcd.setContrast(0.55);      //set contrast to 55%
-    lcd.setBrightness(0.5);     //set brightness to 50% (utilises the PWM)
+
+    init(); // initialise the lcd and joystick
+    // probably going to want a function for the start screen and menu
+
+    while (true) {
     
-    while (1) {
+        render();
+        thread_sleep_for(1000/FPS);
+
+    }
+    
+    /*while (1) {
           // read the joystick to get the x- and y- values
         Vector2D coord = joystick.get_mapped_coord(); 
         printf("Coord = %f | %f\n",coord.x,coord.y);    
@@ -53,5 +63,22 @@ int main(){
         lcd.refresh();  // need to fresh the screen to get the message to appear
         
         ThisThread::sleep_for(30ms);
-    }
+    } */
+}
+
+void init() {
+
+    joystick.init();        // set centre of the joystick
+    lcd.init(LPH7366_1);    // initialise the lcd
+    lcd.setContrast(0.55);  // set contrast to 55%
+    lcd.setBrightness(0.5); // set brightness
+
+}
+
+void render() {
+
+    lcd.clear();  
+    bird();
+    lcd.refresh();
+
 }

@@ -6,32 +6,13 @@
 #define JOYSTICK_H
 
 #include "mbed.h"
+#include "struts.h"
 
 // this value can be tuned to alter tolerance of joystick movement
 #define TOL 0.1f
 #define RAD2DEG 57.2957795131f
 
-enum Direction {
-    CENTRE,  // 0
-    N,       // 1
-    NE,      // 2
-    E,       // 3
-    SE,      // 4
-    S,       // 5
-    SW,      // 6
-    W,       // 7
-    NW      // 8
-};
 
-struct Vector2D {
-  float x;
-  float y;  
-};
-
-struct Polar {
-    float mag;
-    float angle;
-};
 
 class Joystick{
 public:
