@@ -35,9 +35,9 @@ int main(){
 
     while (true) {
     
-        Vector2D coord = joystick.get_mapped_coord();
+        Vector2D coord = joystick.get_mapped_coord(); 
         render(coord);
-        thread_sleep_for(1000/FPS);
+        thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
     }
 }
