@@ -24,9 +24,9 @@ N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(
 
 void init();
 void render(Vector2D coord);
+Vector2D read_joystick();
 
-float x_pos;
-float y_pos;
+float x_pos, y_pos;
 
 int main(){
 
@@ -34,9 +34,9 @@ int main(){
     // probably going to want a function for the start screen and menu
 
     while (true) {
-    
-        Vector2D coord = joystick.get_mapped_coord(); 
-        render(coord);
+
+
+        render(read_joystick());
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
     }
@@ -59,6 +59,19 @@ void render(Vector2D coord) {
 
 }
 
+Vector2D read_joystick() {
+
+    Vector2D coord = joystick.get_mapped_coord();
+
+    if (abs(coord.x) < 0.01) {
+        coord.x = 0;
+    }
+
+    if (abs(coord.y) < 0.01) {
+        coord.y = 0;
+    }
+    return coord;
+}
     /*while (1) {
           // read the joystick to get the x- and y- values
         Vector2D coord = joystick.get_mapped_coord(); 
