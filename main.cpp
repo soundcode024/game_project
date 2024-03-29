@@ -16,6 +16,7 @@
 #include "N5110.h"
 #include "bird.h"
 #include "struts.h"
+#include "walls.h"
 
 #define FPS 12
 
@@ -55,6 +56,7 @@ void render(Vector2D coord) {
 
     lcd.clear();  
     bird(lcd, coord);
+    draw_walls(lcd);
     lcd.refresh();
 
 }

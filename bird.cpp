@@ -8,8 +8,8 @@ float bird_x_pos = 21, bird_y_pos = 24; // initial position of the bird
 #define y_boundary_limit 38 
 
 void bird(N5110 &lcd, Vector2D coord) {
-    printf("x=%f y=%f       ",bird_x_pos, bird_y_pos);
-    printf("x=%f y=%f Joystick \n",coord.x, coord.y);
+    //printf("x=%f y=%f       ",bird_x_pos, bird_y_pos);
+    //printf("x=%f y=%f Joystick \n",coord.x, coord.y);
 
     // 1 is down on the y (-1 is up)    1 is left on the x (-1 is right)
 
@@ -20,6 +20,11 @@ void bird(N5110 &lcd, Vector2D coord) {
     else if (coord.x < 0 && bird_x_pos < x_boundary_limit) { // Else if joystick is going right and bird is not at the right boundary. Bird position increments by the smaller value (absolue value of –2 or boundary minus the bird position) 
         bird_x_pos += min(abs(coord.x) * movement_multiplier, x_boundary_limit - bird_x_pos);
     }
+
+    /*if (bird_x_pos >= x_boundary_limit-2) {     // when the bird is at x_boundary_limit it will draw a dotted line at the boundary
+        lcd.drawLine(x_boundary_limit, 0, x_boundary_limit, 48, FILL_WHITE); // note the width of the sprite will need to be addded to the boundary
+    }
+    */
 
     if (coord.y < 0 && bird_y_pos > 0) { //When joystick is going up and bird pos is not at the boundary. Bird position decrements by smaller value (absolute value of –2 or current bird position) 
         bird_y_pos -= min(abs(coord.y) * movement_multiplier, bird_y_pos);
