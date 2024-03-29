@@ -16,12 +16,15 @@ enum Direction {
 };
 
 struct Vector2D {
-  float x;
-  float y;  
+    float x;
+    float y;
+
+    Vector2D(float X, float Y); // constructor
 };
 
 struct Polar {
     float mag;
     float angle;
 };
+
 
