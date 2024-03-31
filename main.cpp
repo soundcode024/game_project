@@ -22,7 +22,9 @@
 #define FPS 15
 
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
-N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)  
+N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
+
+Game flappy;
 
 void init();
 void render(Vector2D coord);
@@ -54,7 +56,7 @@ void init() {
 void render(Vector2D coord) {
 
     lcd.clear();
-    game(lcd, coord);
+    flappy.game(lcd, coord);
     lcd.refresh();
 
 }

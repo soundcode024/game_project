@@ -4,8 +4,6 @@
 #include "N5110.h"
 #include "struts.h"
 
-void draw_walls(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed);
-
 const int bottom_wall[48][10]= {
 	{ 1,1,1,1,1,1,1,1,1,1 },
 	{ 1,1,1,1,1,1,1,1,1,1 },
@@ -106,4 +104,15 @@ const int top_wall[48][10]= {
 	{ 1,1,1,1,1,1,1,1,1,1 },
 	{ 1,1,1,1,1,1,1,1,1,1 },
 	{ 1,1,1,1,1,1,1,1,1,1 }
+};
+
+class Wall {
+public:
+    Wall();
+    void draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed);
+    float get_wall_x_pos();
+
+private:
+
+    float _wall_x_pos = 84;
 };

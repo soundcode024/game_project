@@ -6,6 +6,14 @@
 #include "bird.h"
 #include "walls.h"
 
-void game(N5110 &lcd, Vector2D coord);
+class Game {
 
-void collision (Vector2D bird_pos);
+public:
+    Game();
+    void game(N5110 &lcd, Vector2D coord);
+    void collision (Vector2D bird_pos);
+
+private:
+    Wall _wall1;
+
+};
