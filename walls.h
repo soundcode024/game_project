@@ -114,5 +114,5 @@ public:
 
 private:
 
-    float _wall_x_pos = 84;
+    float _wall_x_pos = 50;
 };

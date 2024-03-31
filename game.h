@@ -11,9 +11,9 @@ class Game {
 public:
     Game();
     void game(N5110 &lcd, Vector2D coord);
-    void collision (Vector2D bird_pos);
+    bool collision (Vector2D bird_pos, float wall_x_pos);
 
 private:
     Wall _wall1;
-
+    bool _collision;
 };

@@ -2,8 +2,9 @@
 
 // LCD pointer, x_pos, gap_y_pos, wall_gap, wall_speed
 
-Wall::Wall() {};
+Wall::Wall() {}; //empty constructor
 
+// LCD pointer, gap_y_pos, wall_gap, wall_speed
 void Wall::draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed) {
 
     if (_wall_x_pos >= 0-10) {
