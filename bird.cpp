@@ -7,9 +7,9 @@ Vector2D bird_pos(21, 24); // initial position of the bird
 #define x_boundary_limit 80
 #define y_boundary_limit 38
 
-void bird(N5110 &lcd, Vector2D coord) {
-    printf("x=%f y=%f       ",bird_pos.x, bird_pos.y);
-    printf("x=%f y=%f Joystick \n",coord.x, coord.y);
+Vector2D bird(N5110 &lcd, Vector2D coord) {
+    //printf("x=%f y=%f       ",bird_pos.x, bird_pos.y);
+    //printf("x=%f y=%f Joystick \n",coord.x, coord.y);
     // 1 is down on the y (-1 is up)    1 is left on the x (-1 is right)
 
     if (coord.x > 0 && bird_pos.x > 0) { // When the joystick is going left and the bird position is not at the boundary, Bird position decrements by the smaller value ( +2 or current bird position) 
@@ -36,4 +36,5 @@ void bird(N5110 &lcd, Vector2D coord) {
     //lcd.drawRect(bird_pos.x, bird_pos.y, 10, 10, FILL_BLACK);
     lcd.drawSprite(bird_pos.x, bird_pos.y, 11, 12, (int*)bird_sprite);
 
+    return bird_pos;
 }

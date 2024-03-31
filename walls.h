@@ -4,7 +4,7 @@
 #include "N5110.h"
 #include "struts.h"
 
-void draw_walls(N5110 &lcd);
+void draw_walls(N5110 &lcd, int x_pos, int gap_y_pos, int wall_gap);
 
 const int bottom_wall[48][10]= {
 	{ 1,1,1,1,1,1,1,1,1,1 },

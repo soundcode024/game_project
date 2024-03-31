@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <algorithm> // maybe done need this?
 
-void bird(N5110 &lcd, Vector2D coord);
+Vector2D bird(N5110 &lcd, Vector2D coord);
 
 const int bird_sprite[11][12]= {
 	{ 0,0,0,0,0,0,0,0,1,0,0,0 },

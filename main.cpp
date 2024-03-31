@@ -14,11 +14,12 @@
 #include "mbed.h"
 #include "Joystick.h" 
 #include "N5110.h"
-#include "bird.h"
 #include "struts.h"
+#include "bird.h"
 #include "walls.h"
+#include "game.h"
 
-#define FPS 12
+#define FPS 15
 
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)  
@@ -26,8 +27,6 @@ N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(
 void init();
 void render(Vector2D coord);
 Vector2D read_joystick();
-
-float x_pos, y_pos;
 
 int main(){
 
@@ -54,9 +53,8 @@ void init() {
 
 void render(Vector2D coord) {
 
-    lcd.clear();  
-    bird(lcd, coord);
-    draw_walls(lcd);
+    lcd.clear();
+    game(lcd, coord);
     lcd.refresh();
 
 }
@@ -74,7 +72,7 @@ Vector2D read_joystick() {
     }
     return coord;
 }
-    /*while (1) {
+    /*while (1) { // this is just here as reference
           // read the joystick to get the x- and y- values
         Vector2D coord = joystick.get_mapped_coord(); 
         printf("Coord = %f | %f\n",coord.x,coord.y);    
