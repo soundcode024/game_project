@@ -1,13 +1,18 @@
 #include "bird.h"
 #include <cstdio>
 
-Vector2D bird_pos(21, 24); // initial position of the bird
-
 #define movement_multiplier 2
 #define x_boundary_limit 80
 #define y_boundary_limit 38
 
-Vector2D bird(N5110 &lcd, Vector2D coord) {
+// make the bird_pos variable in Bird class a private variable]
+// add the dotted line when its at its position limit
+
+Vector2D bird_pos(21,24); // initial position of the bird
+
+Bird::Bird() {}; // default empty constructor
+
+void Bird::bird(N5110 &lcd, Vector2D coord) {
     //printf("x=%f y=%f       ",bird_pos.x, bird_pos.y);
     //printf("x=%f y=%f Joystick \n",coord.x, coord.y);
     // 1 is down on the y (-1 is up)    1 is left on the x (-1 is right)
@@ -33,8 +38,12 @@ Vector2D bird(N5110 &lcd, Vector2D coord) {
         bird_pos.y += min(coord.y * movement_multiplier, y_boundary_limit - bird_pos.y);
     }
 
-    //lcd.drawRect(bird_pos.x, bird_pos.y, 10, 10, FILL_BLACK);
+    
     lcd.drawSprite(bird_pos.x, bird_pos.y, 11, 12, (int*)bird_sprite);
+    lcd.drawRect(bird_pos.x, bird_pos.y, 12, 11, FILL_TRANSPARENT);  // rectangle to draw bird hitbox
 
+}
+
+Vector2D Bird::get_bird_pos() {
     return bird_pos;
 }

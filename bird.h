@@ -6,7 +6,17 @@
 #include <cstdlib>
 #include <algorithm> // maybe done need this?
 
-Vector2D bird(N5110 &lcd, Vector2D coord);
+class Bird {
+
+public:
+    Bird();
+    void bird(N5110 &lcd, Vector2D coord);
+    Vector2D get_bird_pos();
+private:
+
+};
+
+
 
 const int bird_sprite[11][12]= {
 	{ 0,0,0,0,0,0,0,0,1,0,0,0 },
