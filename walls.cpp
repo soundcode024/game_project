@@ -7,7 +7,7 @@ Wall::Wall() {}; //empty constructor
 // LCD pointer, gap_y_pos, wall_gap, wall_speed
 void Wall::draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed) {
 
-    if (_wall_x_pos >= 0-10) {
+    if (_wall_x_pos >= 0-10) {  //detects when the wall leaves the screen and makes it loop around again
         _wall_x_pos = _wall_x_pos - wall_speed;
     }
     

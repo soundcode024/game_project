@@ -15,8 +15,6 @@
 #include "Joystick.h" 
 #include "N5110.h"
 #include "struts.h"
-#include "bird.h"
-#include "walls.h"
 #include "game.h"
 
 #define FPS 15
@@ -29,6 +27,7 @@ Game flappy;
 void init();
 void render(Vector2D coord);
 Vector2D read_joystick();
+void game_over();
 
 int main(){
 
@@ -37,11 +36,17 @@ int main(){
 
     while (true) {
 
-
         render(read_joystick());
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
+        if (flappy.get_collision()) {
+            break;
+        }
+
     }
+
+    game_over();
+
 }
 
 void init() {
@@ -74,27 +79,19 @@ Vector2D read_joystick() {
     }
     return coord;
 }
-    /*while (1) { // this is just here as reference
-          // read the joystick to get the x- and y- values
-        Vector2D coord = joystick.get_mapped_coord(); 
-        printf("Coord = %f | %f\n",coord.x,coord.y);    
-        
-        lcd.clear();  // clear buffer at the start of the loop
+
+void game_over(){
+    lcd.clear();
+    char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
+    sprintf(buffer,"GAME OVER"); // print formatted data to buffer
+    lcd.printString(buffer,0,0);     // display on screen
+    lcd.refresh();
+    sleep();
+}
+    /* // this is just here as reference
         char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
         sprintf(buffer,"x = %.3f",coord.x); // print formatted data to buffer
         lcd.printString(buffer,0,0);     // display on screen
         sprintf(buffer,"y = %.3f",coord.y); // print formatted data to buffer
         lcd.printString(buffer,0,1);     // display on screen
-        lcd.drawCircle(42, 23, 20, FILL_TRANSPARENT);
-
-        x_pos = (coord.x*20)+42;
-        y_pos = -(coord.y*20)+23;
-        lcd.drawCircle(x_pos, y_pos, 2, FILL_BLACK);
-
-
-
-
-        lcd.refresh();  // need to fresh the screen to get the message to appear
-        
-        ThisThread::sleep_for(30ms);
-    } */
+    */
