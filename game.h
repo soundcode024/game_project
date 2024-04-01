@@ -21,4 +21,6 @@ private:
     bool _collision;
     int _bird_y_pos;
     int _bird_x_pos;
+    int _i;
+    int _j;
 };

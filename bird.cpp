@@ -2,8 +2,8 @@
 #include <cstdio>
 
 #define movement_multiplier 2
-#define x_boundary_limit 80
-#define y_boundary_limit 38
+#define x_boundary_limit 84-12
+#define y_boundary_limit 48-11
 
 // make the bird_pos variable in Bird class a private variable]
 // add the dotted line when its at its position limit
