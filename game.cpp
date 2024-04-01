@@ -23,7 +23,7 @@ bool Game::collision (Vector2D bird_pos, float wall_x_pos) {
     _bird_y_pos = static_cast<int>(bird_pos.y);
     _bird_x_pos = static_cast<int>(bird_pos.x);
     
-    printf("\n_bird_x_pos=%i ¦ _bird_y_pos=%i",_bird_x_pos, _bird_y_pos); // casts the y position as a integer to remove the decimal part
+    //printf("\n_bird_x_pos=%i ¦ _bird_y_pos=%i",_bird_x_pos, _bird_y_pos); // casts the y position as a integer to remove the decimal part
 
     if (_bird_x_pos + bird_length > wall_x_pos and _bird_x_pos < wall_x_pos + wall_length) { // detects collisions of the x positions of the wall and bird
 
