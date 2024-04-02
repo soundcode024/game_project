@@ -1,10 +1,10 @@
 #include "struts.h"
 
-AnalogIn noise(A0); 
+AnalogIn noise(A0); // unused analog pin
 
 int rand_num() {
-    srand(noise.read_u16());
-    int random_num = rand();
+    srand(noise.read_u16()); // this seeds the random num generator with noise on the pin
+    int random_num = rand(); // rand function used from cstdlib.
     return random_num;
 }
 

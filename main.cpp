@@ -16,6 +16,7 @@
 #include "N5110.h"
 #include "struts.h"
 #include "game.h"
+#include <cstdio>
 
 #define FPS 15
 
