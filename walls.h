@@ -9,10 +9,13 @@ public:
     Wall();
     void draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed);
     float get_wall_x_pos();
+    int get_wall_gap_pos();
 
 private:
 
-    float _wall_x_pos = 50;
+    float _wall_x_pos = 84;
+    float _gap_y_pos;
+    bool _wall_lifetime = 1;
 };
 
 const int bottom_wall[48][10]= {
