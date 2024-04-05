@@ -26,6 +26,7 @@ N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(
 Game flappy;
 
 void init();
+void main_menu();
 void render(Vector2D coord);
 Vector2D read_joystick();
 void game_over();
@@ -33,6 +34,7 @@ void game_over();
 int main(){
 
     init(); // initialise the lcd and joystick
+    //main_menu();
     // probably going to want a function for the start screen and menu
 
     while (true) {
@@ -65,6 +67,12 @@ void render(Vector2D coord) {
     flappy.game(lcd, coord);
     lcd.refresh();
 
+}
+
+void main_menu() {
+    while (true) {
+        //
+    }
 }
 
 Vector2D read_joystick() {

@@ -11,13 +11,21 @@ Game::Game() {}; //empty constructor
 
 void Game::game(N5110 &lcd, Vector2D coord) {
 
+    if (_run_once) { // temporary for testing with multiple walls NOT YET WORKING
+        _wall2.set_x_offset(40);
+        _run_once = 0;
+    }
+
     _wall1.draw_wall(lcd, random_gap_y_pos() , wall_gap, wall_speed); // variables temporarily defined above for testing
+    _wall2.draw_wall(lcd, 20 , wall_gap, 1);
     _bird.bird(lcd, coord);
     collision(_bird.get_bird_pos(), _wall1.get_wall_x_pos(), _wall1.get_wall_gap_pos());
+    collision(_bird.get_bird_pos(), _wall2.get_wall_x_pos(), _wall2.get_wall_gap_pos());
 
 }
 
-bool Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) {
+// collision, function to detect collisions between the bird and moving wall.
+bool Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) { 
 
     _bird_y_pos = static_cast<int>(bird_pos.y); // casts the bird position float as a integer to remove the decimal points
     _bird_x_pos = static_cast<int>(bird_pos.x);
@@ -41,9 +49,6 @@ bool Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) {
         }
 
     }
-    else {
-        _collision = 0;
-    }
 
     return _collision;
     // NOTES:
@@ -52,11 +57,14 @@ bool Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) {
     // need to look into how to make the hitbox smaller maybe for loop with the sprite 
 }
 
-int Game::random_gap_y_pos () {
+// random_gap_y_pos, function that returns a random value for a wall
+int Game::random_gap_y_pos () { 
     return (wall_gap+(rand_num()%(48-wall_gap))); // this will be the number of pixels from the top of the screen to the top of the lower wall
 }
 
-bool Game::get_collision(){
+// get_collision, returns a boolean value, 1 = collision detected, 0 = no collision detected, resets collision bool
+bool Game::get_collision(){ 
     return _collision;
+    _collision = 0; // resets collision bool only when get_collision is called, so when multiple walls are present they dont pull collision low if they are checked later in line
 }
 

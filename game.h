@@ -17,13 +17,16 @@ public:
     int random_gap_y_pos();
 
 private:
-    Bird _bird;
+    Bird _bird; // Object instantuations
     Wall _wall1;
+    Wall _wall2;
+
     bool _collision = 0;
     int _bird_y_pos;
     int _bird_x_pos;
-    int _i;
-    int _j;
+    int _i; // variable for "for" loop
+    int _j; // variable for "for" loop
+    bool _run_once = 1; // bool to run a section of code only once
 
     int _gap_y_pos;
 

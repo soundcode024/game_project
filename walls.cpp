@@ -32,3 +32,8 @@ float Wall::get_wall_x_pos() {
 int Wall::get_wall_gap_pos() {
     return _gap_y_pos;
 }
+
+// Make sure this only runs once at the start of each gamemode
+void Wall::set_x_offset(int offset) {
+    _wall_x_pos = _wall_x_pos + offset;
+}
