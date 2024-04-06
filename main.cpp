@@ -17,6 +17,7 @@
 #include "struts.h"
 #include "game.h"
 #include <cstdio>
+#include "menu_sprites.h" // sprites for the main menu
 
 #define FPS 15
 
@@ -34,7 +35,7 @@ void game_over();
 int main(){
 
     init(); // initialise the lcd and joystick
-    //main_menu();
+    main_menu();
     // probably going to want a function for the start screen and menu
 
     while (true) {
@@ -70,8 +71,37 @@ void render(Vector2D coord) {
 }
 
 void main_menu() {
+    int menu_choice = 2;
     while (true) {
-        //
+        thread_sleep_for(1000/FPS); // delay to set frame rate of the game
+        
+        lcd.clear();
+
+        lcd.drawSprite(10, 2, 15, 64, (int*)flappy_logo);
+        
+        lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
+        lcd.drawSprite(5, 19, 7, 7, (int*)box);
+
+        //second menu item and box
+        lcd.drawSprite(5, 29, 7, 7, (int*)box);
+
+        //third menu item and box
+        lcd.drawSprite(5, 39, 7, 7, (int*)box);
+
+        switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
+            case 1:
+                lcd.drawSprite(5, 19, 7, 7, (int*)box_selected);
+                break;
+            case 2:
+                lcd.drawSprite(5, 29, 7, 7, (int*)box_selected);
+                break;
+            case 3:
+                lcd.drawSprite(5, 39, 7, 7, (int*)box_selected);
+                break;
+        }
+
+        lcd.refresh();
+
     }
 }
 
