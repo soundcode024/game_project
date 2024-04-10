@@ -16,6 +16,15 @@
 
 Game::Game() {}; //empty constructor
 
+void Game::init() {
+    _collision = 0;
+    _score = 0;
+    _run_once = 1;
+    _bird.init();
+    _wall1.init();
+    _wall2.init();
+}
+
 void Game::game(N5110 &lcd, Vector2D coord) {
 
     if (_run_once) { // temporary for testing with multiple walls NOT YET WORKING

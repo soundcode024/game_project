@@ -68,6 +68,7 @@ void init() {
     lcd.setContrast(0.55);  // set contrast to 55%
     lcd.setBrightness(0.5); // set brightness
     js_button.mode(PullDown); // Sets internal pull down resistor, this is adequate for the frequency of button presses
+    flappy.init();
 
 }
 
@@ -163,5 +164,6 @@ void game_over(){
     sprintf(buffer,"GAME OVER"); // print formatted data to buffer
     lcd.printString(buffer,0,0);     // display on screen
     lcd.refresh();
-    sleep();
+    thread_sleep_for(1000);
+    main();
 }

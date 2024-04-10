@@ -11,6 +11,7 @@ class Game {
 
 public:
     Game();
+    void init();
     void game(N5110 &lcd, Vector2D coord);
     void collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos);
     bool get_collision();

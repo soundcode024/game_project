@@ -10,9 +10,11 @@ class Bird {
 
 public:
     Bird();
+    void init();
     void bird(N5110 &lcd, Vector2D coord);
     Vector2D get_bird_pos();
 private:
+    Vector2D _bird_pos; // initial position of the bird
 
 };
 

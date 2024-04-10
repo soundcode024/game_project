@@ -3,6 +3,11 @@
 
 Wall::Wall() {}; //empty constructor
 
+void Wall::init() {
+    _wall_x_pos = 84;
+    _wall_lifetime = 1;
+}
+
 // LCD pointer, gap_y_pos, wall_gap, wall_speed
 void Wall::draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed) {
 
