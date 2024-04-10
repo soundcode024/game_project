@@ -27,7 +27,6 @@
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
 DigitalIn js_button(PB_0); // Joystick button declared as DigitalIn to make use of internal pull down resistor
-
 Game flappy;
 
 // FUNCTION PROTOTYPES
@@ -37,7 +36,8 @@ void render(Vector2D coord);
 Vector2D read_joystick();
 void game_over();
 
-
+// VARIABLES
+char buffer[14]={0};
 
 int main(){
 
@@ -46,13 +46,15 @@ int main(){
 
     while (true) { // main while loop for the runtime of the game
 
+        sprintf(buffer,"Score = %i",flappy.get_score()); // print score to buffer
+
         render(read_joystick()); // render function renders the game and takes joystick input
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
         if (flappy.get_collision()) {
-            break;
+            // NEED TO ADD A GAME RESET METHOD to start at the start of something
+                break;
         }
-
     }
 
     game_over();
@@ -72,6 +74,7 @@ void init() {
 void render(Vector2D coord) { // Funtion to render the game on the screen, passes joystick and LCD object to the game object
 
     lcd.clear();
+    lcd.printString(buffer,0,0); // print score to display
     flappy.game(lcd, coord);
     lcd.refresh();
 
@@ -100,7 +103,7 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         lcd.clear();
 
-        lcd.drawSprite(10, 2, 15, 64, (int*)flappy_logo);
+        lcd.drawSprite(10, 2, 15, 64, (int*)flappy_logo); // Game logo
         
         lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
         lcd.drawSprite(5, 19, 7, 7, (int*)box);
@@ -137,7 +140,6 @@ void main_menu() { // Function to render the main menu items and handle menu cho
         else if (menu_choice == 2 and js_button.read() == 1) {
             printf("Menu choice 2 \n");
         }
-
     }
 }
 
@@ -163,10 +165,3 @@ void game_over(){
     lcd.refresh();
     sleep();
 }
-    /* // this is just here as reference
-        char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
-        sprintf(buffer,"x = %.3f",coord.x); // print formatted data to buffer
-        lcd.printString(buffer,0,0);     // display on screen
-        sprintf(buffer,"y = %.3f",coord.y); // print formatted data to buffer
-        lcd.printString(buffer,0,1);     // display on screen
-    */
