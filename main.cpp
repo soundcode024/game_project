@@ -46,7 +46,7 @@ int main(){
 
     while (true) { // main while loop for the runtime of the game
 
-        sprintf(buffer,"Score = %i",flappy.get_score()); // print score to buffer
+        sprintf(buffer,"%i",flappy.get_score()); // print score to buffer
 
         render(read_joystick()); // render function renders the game and takes joystick input
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game

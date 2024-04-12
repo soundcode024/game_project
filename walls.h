@@ -15,9 +15,9 @@ public:
 
 private:
 
-    float _wall_x_pos = 84;
+    float _wall_x_pos;
     float _gap_y_pos;
-    bool _wall_lifetime = 1;
+    bool _wall_lifetime;
 };
 
 const int bottom_wall[48][10]= {

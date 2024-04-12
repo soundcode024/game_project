@@ -16,7 +16,7 @@
 
 Game::Game() {}; //empty constructor
 
-void Game::init() {
+void Game::init() { // init function to initalise bird and walls aswell as reset variables
     _collision = 0;
     _score = 0;
     _run_once = 1;
@@ -27,16 +27,18 @@ void Game::init() {
 
 void Game::game(N5110 &lcd, Vector2D coord) {
 
-    if (_run_once) { // temporary for testing with multiple walls NOT YET WORKING
-        _wall2.set_x_offset(40);
+    if (_run_once) {
+        _wall2.set_x_offset(48); // 48 for even wall spacing between two walls
         _run_once = 0;
     }
 
     _wall1.draw_wall(lcd, random_gap_y_pos() , wall_gap, wall_speed); // variables temporarily defined above for testing
-    _wall2.draw_wall(lcd, random_gap_y_pos() , wall_gap, 1);
+    _wall2.draw_wall(lcd, random_gap_y_pos() , wall_gap, wall_speed);
     _bird.bird(lcd, coord);
     collision(_bird.get_bird_pos(), _wall1.get_wall_x_pos(), _wall1.get_wall_gap_pos());
     collision(_bird.get_bird_pos(), _wall2.get_wall_x_pos(), _wall2.get_wall_gap_pos());
+
+    //printf("wall 1 = %f, wall 2 = %f, delta = %f \n", _wall1.get_wall_x_pos(), _wall2.get_wall_x_pos(), _wall2.get_wall_x_pos()-_wall1.get_wall_x_pos());
 
 }
 
@@ -46,7 +48,7 @@ void Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) {
     _bird_y_pos = static_cast<int>(bird_pos.y); // casts the bird position float as a integer to remove the decimal points
     _bird_x_pos = static_cast<int>(bird_pos.x);
     
-    //printf("\n_bird_x_pos=%i ¦ _bird_y_pos=%i",_bird_x_pos, _bird_y_pos);
+    //printf("\n _bird_x_pos=%i",_bird_x_pos);
 
     if (_bird_x_pos + bird_length > wall_x_pos and _bird_x_pos < wall_x_pos + wall_length) { // detects collisions of the x positions of the wall and bird
 

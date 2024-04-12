@@ -4,7 +4,7 @@
 Wall::Wall() {}; //empty constructor
 
 void Wall::init() {
-    _wall_x_pos = 84;
+    _wall_x_pos = 85; // screen width plus one pixel, as it will be decremented by the if statement straight away.
     _wall_lifetime = 1;
 }
 
@@ -16,7 +16,7 @@ void Wall::draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed) 
         _gap_y_pos = gap_y_pos;
     }
 
-    if (_wall_x_pos >= 0-10) {  //detects when the wall leaves the screen and makes it loop around again
+    if (_wall_x_pos >= -10) {  //detects when the wall leaves the screen and makes it loop around again
         _wall_x_pos = _wall_x_pos - wall_speed; // changes wall x position based on given wall speed
     }
     
