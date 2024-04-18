@@ -85,6 +85,8 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
     int menu_choice = 0;
     int frame_count = 5;
+    int animation_count = 0;
+    int logo_offset = -15;
 
     while (true) {
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
@@ -102,14 +104,30 @@ void main_menu() { // Function to render the main menu items and handle menu cho
             frame_count = 0;
         }
 
+        
+        if (logo_offset >= 1) {
+            animation_count++;
+            if (animation_count == 10) {
+                logo_offset++;
+            }
+            else if (animation_count == 20) {
+                logo_offset--;
+                animation_count = 0;
+            }
+        }
+        else {
+            logo_offset++;
+        }
+
         lcd.clear();
 
-        lcd.drawSprite(10, 2, 15, 64, (int*)flappy_logo); // Game logo
+        lcd.drawSprite(6, logo_offset, 15, 72, (int*)flappy_logo); // Game logo
         
         lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
         lcd.drawSprite(5, 19, 7, 7, (int*)box);
 
         //second menu item and box
+        lcd.drawSprite(16, 29, 7, 46, (int*)tutorial_text);
         lcd.drawSprite(5, 29, 7, 7, (int*)box);
 
         //third menu item and box
@@ -135,7 +153,7 @@ void main_menu() { // Function to render the main menu items and handle menu cho
         }
 
         else if (menu_choice == 1 and js_button.read() == 1) {
-            printf("Menu choice 1 \n");
+            printf("Menu choice 1 = TUTORIAL \n");
         }
 
         else if (menu_choice == 2 and js_button.read() == 1) {
