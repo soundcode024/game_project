@@ -11,6 +11,7 @@ public:
     void draw_wall(N5110 &lcd, int gap_y_pos, int wall_gap, float wall_speed);
     float get_wall_x_pos();
     int get_wall_gap_pos();
+    bool get_wall_lifetime();
     void set_x_offset(int offset);
 
 private:

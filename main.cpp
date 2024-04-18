@@ -162,8 +162,10 @@ void game_over(){
     lcd.clear();
     char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
     sprintf(buffer,"GAME OVER"); // print formatted data to buffer
-    lcd.printString(buffer,0,0);     // display on screen
+    lcd.printString(buffer,15,0);     // display on screen
+    sprintf(buffer,"Score = %i", flappy.get_score()); // print formatted data to buffer
+    lcd.printString(buffer,15,1);     // display on screen
     lcd.refresh();
-    thread_sleep_for(1000);
+    thread_sleep_for(5000);
     main();
 }

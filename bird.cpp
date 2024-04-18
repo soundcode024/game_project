@@ -42,7 +42,7 @@ void Bird::bird(N5110 &lcd, Vector2D coord) {
 
     
     lcd.drawSprite(_bird_pos.x, _bird_pos.y, 11, 12, (int*)bird_sprite);
-    lcd.drawRect(_bird_pos.x, _bird_pos.y, 12, 11, FILL_TRANSPARENT);  // rectangle to draw bird hitbox
+    //lcd.drawRect(_bird_pos.x, _bird_pos.y, 12, 11, FILL_TRANSPARENT);  // rectangle to draw bird hitbox
 
 }
 

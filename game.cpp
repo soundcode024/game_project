@@ -27,29 +27,27 @@ void Game::init() { // init function to initalise bird and walls aswell as reset
 
 void Game::game(N5110 &lcd, Vector2D coord) {
 
-    if (_run_once) {
+    _bird_y_pos = static_cast<int>(_bird.get_bird_pos().y); // casts the bird position float as a integer to remove the decimal points
+    _bird_x_pos = static_cast<int>(_bird.get_bird_pos().x); // ^^
+
+    if (_run_once) { // will only run once to set the offset of one wall at the begining on the game
         _wall2.set_x_offset(48); // 48 for even wall spacing between two walls
         _run_once = 0;
     }
 
+    score();
+
     _wall1.draw_wall(lcd, random_gap_y_pos() , wall_gap, wall_speed); // variables temporarily defined above for testing
     _wall2.draw_wall(lcd, random_gap_y_pos() , wall_gap, wall_speed);
     _bird.bird(lcd, coord);
-    collision(_bird.get_bird_pos(), _wall1.get_wall_x_pos(), _wall1.get_wall_gap_pos());
-    collision(_bird.get_bird_pos(), _wall2.get_wall_x_pos(), _wall2.get_wall_gap_pos());
-
-    //printf("wall 1 = %f, wall 2 = %f, delta = %f \n", _wall1.get_wall_x_pos(), _wall2.get_wall_x_pos(), _wall2.get_wall_x_pos()-_wall1.get_wall_x_pos());
+    collision(_wall1.get_wall_x_pos(), _wall1.get_wall_gap_pos());
+    collision(_wall2.get_wall_x_pos(), _wall2.get_wall_gap_pos());
+    
 
 }
 
 // collision, function to detect collisions between the bird and moving wall.
-void Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) { 
-
-    _bird_y_pos = static_cast<int>(bird_pos.y); // casts the bird position float as a integer to remove the decimal points
-    _bird_x_pos = static_cast<int>(bird_pos.x);
-    
-    //printf("\n _bird_x_pos=%i",_bird_x_pos);
-
+void Game::collision (float wall_x_pos, int gap_y_pos) { 
     if (_bird_x_pos + bird_length > wall_x_pos and _bird_x_pos < wall_x_pos + wall_length) { // detects collisions of the x positions of the wall and bird
 
         for (_i = 0; _i < (48-(48-gap_y_pos+wall_gap)); _i++) { // collision detection of upper wall
@@ -65,10 +63,35 @@ void Game::collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos) {
                 break;
             }  
         }
-
-        if ((_bird_x_pos + bird_length + 1 > wall_x_pos and _bird_x_pos + 1 < wall_x_pos + wall_length) == 0) {_score++;} // when the bird is in the wall's x coordinates, this checks if its position + 1 pixel is not in the wall's bounds, if its not it increments the score
-
     }
+}
+
+// score, checks when the bird passes through the wall and increments the score, score can only be incremented once per wall on the screen.
+void Game::score() { // make this function more adaptable
+    if (_wall1.get_wall_lifetime() == 0) { // allows the score to be settable when the wall resets position on the screen or is initialised
+        _set_score_enable_1 = 1;
+    }
+
+    if (_wall2.get_wall_lifetime() == 0) {
+        _set_score_enable_2 = 1;
+    }
+
+    if ((_bird_x_pos == _wall1.get_wall_x_pos()+wall_length or 
+         _bird_x_pos == _wall1.get_wall_x_pos()+1+wall_length or
+         _bird_x_pos == _wall1.get_wall_x_pos()-1+wall_length) and // there is a range of 3 pixels to register passing a wall as the bird can move in increments of 2
+         _set_score_enable_1) {
+        _score++;
+        _set_score_enable_1 = 0; // resets score enable so a single wall cant increment the score multiple times
+    }
+
+    if ((_bird_x_pos == _wall2.get_wall_x_pos()+wall_length or
+         _bird_x_pos == _wall2.get_wall_x_pos()+1+wall_length or
+         _bird_x_pos == _wall2.get_wall_x_pos()-1+wall_length) and
+         _set_score_enable_2) {
+        _score++;
+        _set_score_enable_2 = 0;
+    }
+
 }
 
 // random_gap_y_pos, function that returns a random value for a wall

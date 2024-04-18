@@ -10,28 +10,35 @@
 class Game {
 
 public:
-    Game();
+    Game(); // constructor
+
+    // Methods
     void init();
     void game(N5110 &lcd, Vector2D coord);
-    void collision (Vector2D bird_pos, float wall_x_pos, int gap_y_pos);
+    void collision (float wall_x_pos, int gap_y_pos);
     bool get_collision();
-    int random_gap_y_pos();
+    void score();
     int get_score();
 
 private:
-    Bird _bird; // Object instantuations
+    // Methods
+    int random_gap_y_pos();
+
+    // Object instantuations
+    Bird _bird; 
     Wall _wall1;
     Wall _wall2;
 
-    bool _collision = 0;
+    // Variables
+    bool _collision;
     int _bird_y_pos;
     int _bird_x_pos;
     int _i; // variable for "for" loop
     int _j; // variable for "for" loop
-    bool _run_once = 1; // bool to run a section of code only once
-
+    bool _run_once; // bool to run a section of code only once
     int _gap_y_pos;
-    int _score = 0;
+    int _score;
+    bool _set_score_enable_1; // bool for making the score settable
+    bool _set_score_enable_2; // ^
 
-    
 };
