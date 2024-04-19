@@ -2,20 +2,20 @@
 #include <cstdio>
 
 #define movement_multiplier 2
-#define x_boundary_limit 84-12
-#define y_boundary_limit 48-11
+#define x_boundary_limit 84-12 // screen boundary - bird dimension
+#define y_boundary_limit 48-11 // ^^
 
 // add the dotted line when its at its position limit
 
-Bird::Bird() : _bird_pos(21, 24) {}; // constructor defines initial values for birds position
+Bird::Bird() : _bird_pos(0, 0) {}; // constructor defines initial values for _bird_pos strut, redundant due to init method
 
-void Bird::init() { // Init method to reset bird position when needed
-    _bird_pos.x = 21;
-    _bird_pos.y = 24;
+void Bird::init() { // Init method to reset bird position when needed, bird starting position
+    _bird_pos.x = 8;
+    _bird_pos.y = 18;
 }
 
 void Bird::bird(N5110 &lcd, Vector2D coord) {
-    //printf("x=%f y=%f       ",_bird_pos.x, _bird_pos.y);
+    //printf("x=%f y=%f \n",_bird_pos.x, _bird_pos.y);
     //printf("x=%f y=%f Joystick \n",coord.x, coord.y);
     // 1 is down on the y (-1 is up)    1 is left on the x (-1 is right)
 

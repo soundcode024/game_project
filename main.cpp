@@ -28,6 +28,7 @@ Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
 DigitalIn js_button(PB_0); // Joystick button declared as DigitalIn to make use of internal pull down resistor
 Game flappy;
+InterruptIn pause_button(BUTTON1);
 
 // FUNCTION PROTOTYPES
 void init();
@@ -35,9 +36,14 @@ void main_menu();
 void render(Vector2D coord);
 Vector2D read_joystick();
 void game_over();
+void pause_isr();
+void pause();
 
 // VARIABLES
 char buffer[14]={0};
+int score_text_offset;
+volatile bool pause_button_flag = 0;
+volatile bool pause_game = 0;
 
 int main(){
 
@@ -46,19 +52,15 @@ int main(){
 
     while (true) { // main while loop for the runtime of the game
 
-        sprintf(buffer,"%i",flappy.get_score()); // print score to buffer
+        pause(); // Pauses the game when the pause button is pressed
 
-        render(read_joystick()); // render function renders the game and takes joystick input
+        render(read_joystick()); // render function renders the game, takes joystick input and is the actual running of the game and its features.
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
         if (flappy.get_collision()) {
-            // NEED TO ADD A GAME RESET METHOD to start at the start of something
-                break;
+                game_over();
         }
     }
-
-    game_over();
-
 }
 
 void init() {
@@ -68,16 +70,29 @@ void init() {
     lcd.setContrast(0.55);  // set contrast to 55%
     lcd.setBrightness(0.5); // set brightness
     js_button.mode(PullDown); // Sets internal pull down resistor, this is adequate for the frequency of button presses
-    flappy.init();
+    flappy.init(); // Game init
+    score_text_offset = 40;
 
+    pause_button.fall(&pause_isr); // Checks for falling edge on pause button to update pause flag 
+    pause_button.mode(PullUp); // Internal pull up for the pause button
 }
 
 void render(Vector2D coord) { // Funtion to render the game on the screen, passes joystick and LCD object to the game object
 
-    lcd.clear();
-    lcd.printString(buffer,0,0); // print score to display
-    flappy.game(lcd, coord);
-    lcd.refresh();
+    lcd.clear(); // Clears LCD buffer
+
+    flappy.game(lcd, coord); // Renders game objects (walls, bird...)
+    
+    if (flappy.get_score() == 10) {score_text_offset = 37;} // when score hits 10, this moves it to the left to keep in in the centre of the screen.
+    sprintf(buffer,"%i",flappy.get_score()); // print score to buffer
+    lcd.printString(buffer,score_text_offset,1); // print score to display
+
+    if (pause_button_flag) { // When the pause flag is set high by ISR, pause text is printed to LCD
+        lcd.drawSprite(26, 16, 10, 32, (int*) pause_text);
+        pause_game = 1; // pause_game variable set high to put MCU to sleep at the start of the next frame
+    }
+
+    lcd.refresh(); // Sends buffer to LCD
 
 }
 
@@ -176,7 +191,7 @@ Vector2D read_joystick() { // Function to read the joystick mapped coordinates a
     return coord;
 }
 
-void game_over(){
+void game_over() { // Function to handle the game over scenario
     lcd.clear();
     char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
     sprintf(buffer,"GAME OVER"); // print formatted data to buffer
@@ -186,4 +201,17 @@ void game_over(){
     lcd.refresh();
     thread_sleep_for(5000);
     main();
+
+    // MAKE IT SAY SOMETHING LIKE TRY HARDER OR A DIFFERENT MESSAGE EVERY TIME?
+}
+
+void pause_isr() { // Interupt service routine for the pause button, toggles flag when called
+    pause_button_flag = !pause_button_flag;
+}
+
+void pause() {
+    while (pause_game and pause_button_flag) { // While loop will only run when ISR flag is high and the pause text has been printed on the screen
+        sleep(); // Puts MCU to sleep to save power
+    }
+    pause_game = 0; // Resets pause_game variable
 }
