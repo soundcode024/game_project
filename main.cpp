@@ -2,8 +2,9 @@
 *        ========================
 *
 *        Function:               Flappy bird game
-*        Required Libraries:     Joystick : https://github.com/ELECXJEL2645/Joystick
-*                                N5110    : https://github.com/ELECXJEL2645/N5110
+*        Required Libraries:     Joystick           : https://github.com/ELECXJEL2645/Joystick
+*                                N5110              : https://github.com/ELECXJEL2645/N5110
+                                 DebouncedInterrupt : https://os.mbed.com/teams/WizziLab/code/DebouncedInterrupt/     
                                  * note these are not my libraries and are shown here for referencing reasons, they are used throughtout the program
 *
 *        Authored by:            Filip Zawalski
@@ -19,6 +20,7 @@
 #include "game.h"
 #include <cstdio>
 #include "menu_sprites.h" // sprites for the main menu
+#include "DebouncedInterrupt.h" // EXTERNAL LIBRARY USED FOR THE INTERRUPT AS IT INCLUDES SOFTWARE DEBOUNCING, I modified this to make use of internal pull-up/down resistors.
 
 // DEFINE STATEMENTS
 #define FPS 15
@@ -28,7 +30,7 @@ Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
 DigitalIn js_button(PB_0); // Joystick button declared as DigitalIn to make use of internal pull down resistor
 Game flappy;
-InterruptIn pause_button(PC_9);
+DebouncedInterrupt pause_button(PC_9);
 
 // FUNCTION PROTOTYPES
 void init();
@@ -72,9 +74,7 @@ void init() {
     js_button.mode(PullDown); // Sets internal pull down resistor, this is adequate for the frequency of button presses
     flappy.init(); // Game init
     score_text_offset = 40;
-
-    pause_button.fall(&pause_isr); // Checks for falling edge on pause button to update pause flag 
-    pause_button.mode(PullUp); // Internal pull up for the pause button
+    pause_button.attach(&pause_isr, IRQ_FALL, 200, true); // Checks for falling edge on pause button to update run ISR
 }
 
 void render(Vector2D coord) { // Funtion to render the game on the screen, passes joystick and LCD object to the game object
@@ -212,6 +212,9 @@ void pause_isr() { // Interupt service routine for the pause button, toggles fla
 void pause() {
     while (pause_game and pause_button_flag) { // While loop will only run when ISR flag is high and the pause text has been printed on the screen
         sleep(); // Puts MCU to sleep to save power
+    }
+    if (pause_game == 1) {
+        thread_sleep_for(100);
     }
     pause_game = 0; // Resets pause_game variable
 }
