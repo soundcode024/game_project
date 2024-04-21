@@ -23,6 +23,7 @@ public:
 private:
     // Methods
     int random_gap_y_pos();
+    void score_ramping();
 
     // Object instantuations
     Bird _bird; 
@@ -33,12 +34,11 @@ private:
     bool _collision;
     int _bird_y_pos;
     int _bird_x_pos;
-    int _i; // variable for "for" loop
-    int _j; // variable for "for" loop
     bool _run_once; // bool to run a section of code only once
     int _gap_y_pos;
     int _score;
     bool _set_score_enable_1; // bool for making the score settable
     bool _set_score_enable_2; // ^
+    float _wall_speed;
 
 };
