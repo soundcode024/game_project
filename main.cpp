@@ -28,7 +28,7 @@ Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
 DigitalIn js_button(PB_0); // Joystick button declared as DigitalIn to make use of internal pull down resistor
 Game flappy;
-InterruptIn pause_button(BUTTON1);
+InterruptIn pause_button(PC_9);
 
 // FUNCTION PROTOTYPES
 void init();
@@ -101,7 +101,7 @@ void main_menu() { // Function to render the main menu items and handle menu cho
     int menu_choice = 0;
     int frame_count = 5;
     int animation_count = 0;
-    int logo_offset = -15;
+    int logo_offset = -16; // This means the logo offset is drawn out of bounds at the top by -15-1 as that is the height of it, so it can scroll in.
 
     while (true) {
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
@@ -120,18 +120,18 @@ void main_menu() { // Function to render the main menu items and handle menu cho
         }
 
         
-        if (logo_offset >= 1) {
-            animation_count++;
-            if (animation_count == 10) {
+        if (logo_offset >= 1) { // When logo_offset reaches this value it increments by 1 after 10 frames pass, then decrements after another 10 frames
+            animation_count++; // Increments frame count for animation
+            if (animation_count == 10) { // Increment after 10 frames
                 logo_offset++;
             }
-            else if (animation_count == 20) {
+            else if (animation_count == 20) { // Decrement after 10 frames
                 logo_offset--;
-                animation_count = 0;
+                animation_count = 0; // Reset frame count for animation
             }
         }
-        else {
-            logo_offset++;
+        else { 
+            logo_offset++; // Increments logo_offset
         }
 
         lcd.clear();

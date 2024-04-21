@@ -67,7 +67,7 @@ void Game::collision (float wall_x_pos, int gap_y_pos) {
 }
 
 // score, checks when the bird passes through the wall and increments the score, score can only be incremented once per wall on the screen.
-void Game::score() { // make this function more adaptable
+void Game::score() { 
     if (_wall1.get_wall_lifetime() == 0) { // allows the score to be settable when the wall resets position on the screen or is initialised
         _set_score_enable_1 = 1;
     }
@@ -91,7 +91,6 @@ void Game::score() { // make this function more adaptable
         _score++;
         _set_score_enable_2 = 0;
     }
-
 }
 
 // random_gap_y_pos, function that returns a random value for a wall
