@@ -75,7 +75,7 @@ void init() {
     lcd.init(LPH7366_1);    // initialise the lcd
     lcd.setContrast(0.55);  // set contrast to 55%
     lcd.setBrightness(0.5); // set brightness
-    js_button.mode(PullDown); // Sets internal pull down resistor, this is adequate for the frequency of button presses
+    js_button.mode(PullUp); // Sets internal pull down resistor, this is adequate for the frequency of button presses
     flappy.init(); // Game init
     score_text_offset = 40;
     pause_button.attach(&pause_isr, IRQ_FALL, 200, true); // Checks for falling edge on pause button to update run ISR
@@ -144,17 +144,17 @@ void main_menu() { // Function to render the main menu items and handle menu cho
             button_en = 1;
         }
 
-        if (menu_choice == 0 and js_button.read() == 1 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
+        if (menu_choice == 0 and js_button.read() == 0 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
             vibration(MEDIUM);
             break; // breaks out of main_menu while loop, allowing program to continue in main and for the game to start
         }
 
-        else if (menu_choice == 1 and js_button.read() == 1 and button_en) {
+        else if (menu_choice == 1 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
             printf("Menu choice 1 = TUTORIAL \n");
         }
 
-        else if (menu_choice == 2 and js_button.read() == 1 and button_en) {
+        else if (menu_choice == 2 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
             printf("Menu choice 2 \n");
             options_menu();
@@ -238,17 +238,17 @@ void options_menu() {
             button_en = 1;
         }
 
-        if (menu_choice == 0 and js_button.read() == 1 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
+        if (menu_choice == 0 and js_button.read() == 0 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
             vibration(MEDIUM);
             printf("Options menu 1 \n");
         }
 
-        else if (menu_choice == 1 and js_button.read() == 1 and button_en) {
+        else if (menu_choice == 1 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
             printf("Options menu 2 \n");
         }
 
-        else if (menu_choice == 2 and js_button.read() == 1 and button_en) { // goes back to main menu
+        else if (menu_choice == 2 and js_button.read() == 0 and button_en) { // goes back to main menu
             vibration(MEDIUM);
             main_menu();
         }

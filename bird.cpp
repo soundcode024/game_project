@@ -15,22 +15,17 @@ void Bird::init() { // Init method to reset bird position when needed, bird star
 }
 
 void Bird::bird(N5110 &lcd, Vector2D coord) {
-    //printf("x=%f y=%f \n",_bird_pos.x, _bird_pos.y);
+    //printf("x=%f y=%f \t\t",_bird_pos.x, _bird_pos.y);
     //printf("x=%f y=%f Joystick \n",coord.x, coord.y);
-    // 1 is down on the y (-1 is up)    1 is left on the x (-1 is right)
+    // y = -1 is up (1 is down), y = -1 is left (1 is right)
 
-    if (coord.x > 0 && _bird_pos.x > 0) { // When the joystick is going left and the bird position is not at the boundary, Bird position decrements by the smaller value ( +2 or current bird position) 
-        _bird_pos.x -= min(coord.x * movement_multiplier, _bird_pos.x);
+    if (coord.x < 0 && _bird_pos.x > 0) { // When the joystick is going left and the bird position is not at the boundary, Bird position decrements by the smaller value ( +2 or current bird position) 
+        _bird_pos.x += min(coord.x * movement_multiplier, _bird_pos.x);
     } 
     
-    else if (coord.x < 0 && _bird_pos.x < x_boundary_limit) { // Else if joystick is going right and bird is not at the right boundary. Bird position increments by the smaller value (absolue value of –2 or boundary minus the bird position) 
+    else if (coord.x > 0 && _bird_pos.x < x_boundary_limit) { // Else if joystick is going right and bird is not at the right boundary. Bird position increments by the smaller value (absolue value of –2 or boundary minus the bird position) 
         _bird_pos.x += min(abs(coord.x) * movement_multiplier, x_boundary_limit - _bird_pos.x);
     }
-
-    /*if (_bird_pos.x >= x_boundary_limit-2) {     // when the bird is at x_boundary_limit it will draw a dotted line at the boundary
-        lcd.drawLine(x_boundary_limit, 0, x_boundary_limit, 48, FILL_WHITE); // note the width of the sprite will need to be addded to the boundary
-    }
-    */
 
     if (coord.y < 0 && _bird_pos.y > 0) { //When joystick is going up and bird pos is not at the boundary. Bird position decrements by smaller value (absolute value of –2 or current bird position) 
         _bird_pos.y -= min(abs(coord.y) * movement_multiplier, _bird_pos.y);
