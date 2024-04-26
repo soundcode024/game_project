@@ -24,6 +24,7 @@
 
 // DEFINE STATEMENTS
 #define FPS 15 // This sets the games FPS (KEEP BETWEEN 12-20 FPS)
+#define frame_delay 5 // Defined frame delay for menu inputs
 
 // OBJECT INITIALISATION
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
@@ -38,8 +39,11 @@ void main_menu();
 void render(Vector2D coord);
 Vector2D read_joystick();
 void game_over();
+void options_menu();
 void pause_isr();
 void pause();
+int menu_offset_animation(int &logo_offset, int &animation_count);
+void menu_frame_delay(int &menu_choice, int &frame_count);
 
 // VARIABLES
 char buffer[14]={0};
@@ -98,47 +102,19 @@ void render(Vector2D coord) { // Funtion to render the game on the screen, passe
 
 void main_menu() { // Function to render the main menu items and handle menu choice through user input
 
-    int menu_choice = 0;
-    int frame_count = 5;
-    int animation_count = 0;
-    int logo_offset = -16; // This means the logo offset is drawn out of bounds at the top by -15-1 as that is the height of it, so it can scroll in.
+    static int menu_choice = 0; // static will ensure when going back to main_menu from a submenu, the last selected option will remain selected
+    int frame_count = 0; 
+    static int logo_offset = -16; // This means the logo offset is drawn out of bounds at the top by -15-1 as that is the height of it, so it can scroll in, static ensures this only happens at the start of the game
+    static int animation_count = 0;
+    bool button_en = 0;
 
     while (true) {
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
-        
-        if (frame_count < 5) { // This if statement creats a 5 frame delay without using a sleep command
-            frame_count++;
-        }
-        
-        if (joystick.get_direction() == N and frame_count == 5) { // frame_count ensures this can only run every 5 frames, so menu items dont loop too quickly
-            menu_choice = (menu_choice + 1) % 3; // modulo operator allows the menu items to loop around
-            frame_count = 0; // resets frame count so menu cannot update for another 5 frames
-            vibration(SHORT);
-        }
-        else if (joystick.get_direction() == S and frame_count == 5) {
-            menu_choice = (menu_choice - 1 + 3) % 3;
-            frame_count = 0;
-            vibration(SHORT);
-        }
-
-        
-        if (logo_offset >= 1) { // When logo_offset reaches this value it increments by 1 after 10 frames pass, then decrements after another 10 frames
-            animation_count++; // Increments frame count for animation
-            if (animation_count == 10) { // Increment after 10 frames
-                logo_offset++;
-            }
-            else if (animation_count == 20) { // Decrement after 10 frames
-                logo_offset--;
-                animation_count = 0; // Reset frame count for animation
-            }
-        }
-        else { 
-            logo_offset++; // Increments logo_offset
-        }
+        menu_frame_delay(menu_choice, frame_count);
 
         lcd.clear();
 
-        lcd.drawSprite(6, logo_offset, 15, 72, (int*)flappy_logo); // Game logo
+        lcd.drawSprite(6, menu_offset_animation(logo_offset, animation_count), 15, 72, (int*)flappy_logo); // Game logo
         
         lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
         lcd.drawSprite(5, 19, 7, 7, (int*)box);
@@ -164,19 +140,24 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         lcd.refresh();
 
-        if (menu_choice == 0 and js_button.read() == 1) { // If statements to go into the menu item when the Joystick button is pressed
+        if (frame_count == frame_delay) {
+            button_en = 1;
+        }
+
+        if (menu_choice == 0 and js_button.read() == 1 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
             vibration(MEDIUM);
             break; // breaks out of main_menu while loop, allowing program to continue in main and for the game to start
         }
 
-        else if (menu_choice == 1 and js_button.read() == 1) {
+        else if (menu_choice == 1 and js_button.read() == 1 and button_en) {
             vibration(MEDIUM);
             printf("Menu choice 1 = TUTORIAL \n");
         }
 
-        else if (menu_choice == 2 and js_button.read() == 1) {
+        else if (menu_choice == 2 and js_button.read() == 1 and button_en) {
             vibration(MEDIUM);
             printf("Menu choice 2 \n");
+            options_menu();
         }
 
         pause_button_flag = 0; // do not want the game be be pausable from the main menu
@@ -212,6 +193,71 @@ void game_over() { // Function to handle the game over scenario
     // Better gamve over text, maybe a dead bird animation, nice score text and score display, message to try harder, maybe a try counter?
 }
 
+void options_menu() {
+
+    int menu_choice = 0;
+    int frame_count = 0;
+    int logo_offset = 1; // a logo offset of 1 means the logo will not scroll in from out of bounds
+    int animation_count = 0;
+    bool button_en = 0;
+
+    while (true) {
+        thread_sleep_for(1000/FPS); // delay to set frame rate of the game
+        menu_frame_delay(menu_choice, frame_count);
+
+        lcd.clear();
+
+        lcd.drawSprite(14, menu_offset_animation(logo_offset, animation_count), 15, 56, (int*)options_text_big); // Options menu text
+        
+        //lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
+        lcd.drawSprite(5, 19, 7, 7, (int*)box);
+
+        //second menu item and box
+        lcd.drawSprite(16, 29, 7, 46, (int*)tutorial_text);
+        lcd.drawSprite(5, 29, 7, 7, (int*)box);
+
+        //third menu item and box
+        lcd.drawSprite(16, 39, 7, 46, (int*)tutorial_text); // BACK
+        lcd.drawSprite(5, 39, 7, 7, (int*)box);
+
+        switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
+            case 0:
+                lcd.drawSprite(5, 19, 7, 7, (int*)box_selected);
+                break;
+            case 1:
+                lcd.drawSprite(5, 29, 7, 7, (int*)box_selected);
+                break;
+            case 2:
+                lcd.drawSprite(5, 39, 7, 7, (int*)box_selected);
+                break;
+        }
+
+        lcd.refresh();
+
+        if (frame_count == frame_delay) {
+            button_en = 1;
+        }
+
+        if (menu_choice == 0 and js_button.read() == 1 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
+            vibration(MEDIUM);
+            printf("Options menu 1 \n");
+        }
+
+        else if (menu_choice == 1 and js_button.read() == 1 and button_en) {
+            vibration(MEDIUM);
+            printf("Options menu 2 \n");
+        }
+
+        else if (menu_choice == 2 and js_button.read() == 1 and button_en) { // goes back to main menu
+            vibration(MEDIUM);
+            main_menu();
+        }
+
+        pause_button_flag = 0; // do not want the game be be pausable from the main menu
+
+    }
+}
+
 void pause_isr() { // Interupt service routine for the pause button, toggles flag when called
     pause_button_flag = !pause_button_flag;
 }
@@ -224,4 +270,39 @@ void pause() {
         thread_sleep_for(100);
     }
     pause_game = 0; // Resets pause_game variable
+}
+
+int menu_offset_animation(int &logo_offset, int &animation_count) {
+
+    if (logo_offset >= 1) { // When logo_offset reaches this value it increments by 1 after 10 frames pass, then decrements after another 10 frames
+        animation_count++; // Increments frame count for animation
+        if (animation_count == 10) { // Increment after 10 frames
+            logo_offset = 2;
+        }
+        else if (animation_count == 20) { // Decrement after 10 frames
+            logo_offset = 1;
+            animation_count = 0; // Reset frame count for animation
+        }
+    }
+    else { 
+        logo_offset++; // Increments logo_offset if it is not yet in desired place before animating it
+    }
+    return logo_offset;
+}
+
+void menu_frame_delay(int &menu_choice, int &frame_count) {
+    if (frame_count < frame_delay) { // This if statement creats a 5 frame delay without using a sleep command
+        frame_count++;
+    }
+    
+    if (joystick.get_direction() == N and frame_count == frame_delay) { // frame_count ensures this can only run every 5 frames, so menu items dont loop too quickly
+        menu_choice = (menu_choice + 1) % 3; // modulo operator allows the menu items to loop around
+        frame_count = 0; // resets frame count so menu cannot update for another 5 frames
+        vibration(SHORT);
+    }
+    else if (joystick.get_direction() == S and frame_count == frame_delay) {
+        menu_choice = (menu_choice - 1 + 3) % 3;
+        frame_count = 0;
+        vibration(SHORT);
+    }
 }
