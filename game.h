@@ -2,7 +2,7 @@
 
 #include "mbed.h"
 #include "N5110.h"
-#include "struts.h"
+#include "Utilities.h"
 #include "bird.h"
 #include "walls.h"
 #include <iostream>

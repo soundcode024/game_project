@@ -2,7 +2,7 @@
 
 #include "mbed.h"
 #include "N5110.h"
-#include "struts.h"
+#include "Utilities.h"
 
 class Wall {
 public:

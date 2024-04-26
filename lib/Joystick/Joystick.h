@@ -6,7 +6,7 @@
 #define JOYSTICK_H
 
 #include "mbed.h"
-#include "struts.h"
+#include "Utilities.h"
 
 // this value can be tuned to alter tolerance of joystick movement
 #define TOL 0.1f

@@ -16,14 +16,14 @@
 #include "mbed.h"
 #include "Joystick.h" 
 #include "N5110.h"
-#include "struts.h"
+#include "Utilities.h"
 #include "game.h"
 #include <cstdio>
 #include "menu_sprites.h" // sprites for the main menu
 #include "DebouncedInterrupt.h" // EXTERNAL LIBRARY USED FOR THE INTERRUPT AS IT INCLUDES SOFTWARE DEBOUNCING, I modified this to make use of internal pull-up/down resistors.
 
 // DEFINE STATEMENTS
-#define FPS 15
+#define FPS 15 // This sets the games FPS (KEEP BETWEEN 12-20 FPS)
 
 // OBJECT INITIALISATION
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
@@ -43,9 +43,9 @@ void pause();
 
 // VARIABLES
 char buffer[14]={0};
-int score_text_offset;
-volatile bool pause_button_flag = 0;
-volatile bool pause_game = 0;
+int score_text_offset; // used to offset the the score text to keep it centered
+volatile bool pause_button_flag = 0; // ISR variable for pause function
+volatile bool pause_game = 0; // pause function variable, used to pause the game
 
 int main(){
 
@@ -113,10 +113,12 @@ void main_menu() { // Function to render the main menu items and handle menu cho
         if (joystick.get_direction() == N and frame_count == 5) { // frame_count ensures this can only run every 5 frames, so menu items dont loop too quickly
             menu_choice = (menu_choice + 1) % 3; // modulo operator allows the menu items to loop around
             frame_count = 0; // resets frame count so menu cannot update for another 5 frames
+            vibration(SHORT);
         }
         else if (joystick.get_direction() == S and frame_count == 5) {
             menu_choice = (menu_choice - 1 + 3) % 3;
             frame_count = 0;
+            vibration(SHORT);
         }
 
         
@@ -163,17 +165,22 @@ void main_menu() { // Function to render the main menu items and handle menu cho
         lcd.refresh();
 
         if (menu_choice == 0 and js_button.read() == 1) { // If statements to go into the menu item when the Joystick button is pressed
-            printf("Menu choice 0 = PLAY \n");
-            break;
+            vibration(MEDIUM);
+            break; // breaks out of main_menu while loop, allowing program to continue in main and for the game to start
         }
 
         else if (menu_choice == 1 and js_button.read() == 1) {
+            vibration(MEDIUM);
             printf("Menu choice 1 = TUTORIAL \n");
         }
 
         else if (menu_choice == 2 and js_button.read() == 1) {
+            vibration(MEDIUM);
             printf("Menu choice 2 \n");
         }
+
+        pause_button_flag = 0; // do not want the game be be pausable from the main menu
+
     }
 }
 
@@ -202,7 +209,7 @@ void game_over() { // Function to handle the game over scenario
     thread_sleep_for(5000);
     main();
 
-    // MAKE IT SAY SOMETHING LIKE TRY HARDER OR A DIFFERENT MESSAGE EVERY TIME?
+    // Better gamve over text, maybe a dead bird animation, nice score text and score display, message to try harder, maybe a try counter?
 }
 
 void pause_isr() { // Interupt service routine for the pause button, toggles flag when called

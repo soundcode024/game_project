@@ -57,6 +57,7 @@ void Game::collision (float wall_x_pos, int gap_y_pos) {
         for (i = 0; i < (48-(48-gap_y_pos+wall_gap)); i++) { // collision detection of upper wall
             if (i == _bird_y_pos or i == _bird_y_pos+11) { // i scans across the wall y coordinates, if its a match with the birds y position at the left or right edge, collision is set true.
                 _collision = 1;
+                vibration(LONG);
                 break; 
             }  
         }
@@ -64,6 +65,7 @@ void Game::collision (float wall_x_pos, int gap_y_pos) {
         for (i = 48; i > gap_y_pos; i--) { // collision detection of lower wall
             if (i == _bird_y_pos or i == _bird_y_pos+11) {
                 _collision = 1;
+                vibration(LONG);
                 break;
             }  
         }
@@ -79,15 +81,16 @@ void Game::score() {
         _set_score_enable_1 = 1;
     }
 
-    if (_wall2.get_wall_lifetime() == 0) {
+    if (_wall2.get_wall_lifetime() == 0) { // ^^
         _set_score_enable_2 = 1;
     }
 
     for (j = -3; j <= 3; j++) { // there is a range of 7 pixels to register passing a wall to register score when the wall speed increases or the bird moves at its max velocity of 2 pixels per frame
         if ((_bird_x_pos == static_cast<int>(_wall1.get_wall_x_pos())+wall_length+j) and _set_score_enable_1) {
             _score++;
-            score_ramping();
+            score_ramping(); // makes the score ramp up as score increments
             _set_score_enable_1 = 0; // resets score enable so a single wall cant increment the score multiple times
+            vibration(SHORT);
             break; // no need to keep checking once a score has been registered
         }
     }
@@ -97,6 +100,7 @@ void Game::score() {
             _score++;
             score_ramping();
             _set_score_enable_2 = 0;
+            vibration(SHORT);
             break;
         }
     }
@@ -116,9 +120,9 @@ bool Game::get_collision(){
 // get_score, return the score value, number of times the bird passes the wall without collision
 int Game::get_score() {return _score;}
 
-void Game::score_ramping() {
+void Game::score_ramping() { // ramps up the game speed with score
 
-    if (get_score() > 10) {
+    if (get_score() > 10) { // over a set score, game speed will increase per score increment
         _wall_speed = _wall_speed + 0.05;
     }
 
