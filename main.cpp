@@ -55,7 +55,7 @@ void adaptive_brightness(); // ^
 
 // VARIABLES
 char buffer[14]={0}; // For printing text on lcd using the N5110 library
-int score_text_offset; // used to offset the the score text to keep it centered
+volatile int score_text_offset; // used to offset the the score text to keep it centered
 volatile bool pause_button_flag = 0; // ISR variable for pause function
 volatile bool pause_game = 0; // pause function variable, used to pause the game
 volatile bool ldr_read_flag = 0; // ISR flag for adaptive brightness
@@ -81,14 +81,17 @@ int main(){
 }
 
 void init() {
+    static bool run_once = 1;
 
-    joystick.init();        // set centre of the joystick
-    lcd.init(LPH7366_1);    // initialise the lcd
-    lcd.setContrast(0.55);  // set contrast to 55%
+    if (run_once) { // prevents joystick centre being set again, prevents display flash after game over event
+        joystick.init();        // set centre of the joystick
+        lcd.init(LPH7366_1);    // initialise the lcd
+        lcd.setContrast(0.55);  // set contrast to 55%
+        js_button.mode(PullUp); // Sets internal pull down resistor, this is adequate for the frequency of button presses
+        run_once = 0; // ensures this only runs a single time at startup
+    }
     if (!adaptive_brightness_en) {lcd.setBrightness(0.5);} // set initial lcd brightness if adaptive brightness is not on
-    js_button.mode(PullUp); // Sets internal pull down resistor, this is adequate for the frequency of button presses
     flappy.init(); // Game init
-    score_text_offset = 40; // sets score text offset to initial value
     pause_button.attach(&pause_isr, IRQ_FALL, 200, true); // Checks for falling edge on pause button to update run ISR
     read_ldr.attach(&adaptive_brightness_isr, 2s); // Sets ldr_read_flag high every 2 seconds for the adaptive brightness feature
 }
@@ -99,7 +102,10 @@ void render(Vector2D coord) { // Funtion to render the game on the screen, passe
 
     flappy.game(lcd, coord); // Renders game objects (walls, bird...)
     
-    if (flappy.get_score() == 10) {score_text_offset = 37;} // when score hits 10, this moves it to the left to keep in in the centre of the screen.
+    if (flappy.get_score() >= 10) {score_text_offset = 37;} // keeps the score display in the center, when score hits 10, this moves it to the left to keep in in the centre of the screen.
+    else if (flappy.get_score() >= 100) {score_text_offset = 34;}
+    else {score_text_offset = 40;}
+
     sprintf(buffer,"%i",flappy.get_score()); // print score to buffer
     lcd.printString(buffer,score_text_offset,1); // print score to display
 
@@ -196,17 +202,20 @@ Vector2D read_joystick() { // Function to read the joystick mapped coordinates a
 }
 
 void game_over() { // Function to handle the game over scenario
+
     lcd.clear();
-    char buffer[14]={0};  // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14)
-    sprintf(buffer,"GAME OVER"); // print formatted data to buffer
-    lcd.printString(buffer,15,0);     // display on screen
-    sprintf(buffer,"Score = %i", flappy.get_score()); // print formatted data to buffer
-    lcd.printString(buffer,15,1);     // display on screen
+    // each character is 6 pixels wide, screen is 84 pixels (84/6 = 14), 7 pixels high
+
+    lcd.drawSprite(2, 2, 10, 29, (int*)game_text);
+    lcd.drawSprite(54, 2, 10, 27, (int*)over_text);
+    lcd.drawSprite(15, 13, 35, 56, (int*)dead_bird);
+
+    sprintf(buffer,"%i",flappy.get_score()); // print score to buffer
+    lcd.printString(buffer,score_text_offset,0); // print score to display
+
     lcd.refresh();
     thread_sleep_for(5000);
     main();
-
-    // Better gamve over text, maybe a dead bird animation, nice score text and score display, message to try harder, maybe a try counter?
 }
 
 void options_menu() {
