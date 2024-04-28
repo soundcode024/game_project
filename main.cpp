@@ -19,7 +19,7 @@
 #include "Utilities.h"
 #include "game.h"
 #include <cstdio>
-#include "menu_sprites.h" // sprites for the main menu
+#include "menu_sprites.h" // sprites for the menus
 #include "DebouncedInterrupt.h" // EXTERNAL LIBRARY USED FOR THE INTERRUPT AS IT INCLUDES SOFTWARE DEBOUNCING, I modified this to make use of internal pull-up/down resistors.
 
 // DEFINE STATEMENTS
@@ -30,40 +30,51 @@
 Joystick joystick(PC_1, PC_0); // y     x   attach and create joystick object
 N5110 lcd(PC_7, PA_9, PB_10, PB_5, PB_3, PA_10); // Pin assignment format:  lcd(IO, Ser_TX, Ser_RX, MOSI, SCLK, PWM)
 DigitalIn js_button(PB_0); // Joystick button declared as DigitalIn to make use of internal pull down resistor
-Game flappy;
-DebouncedInterrupt pause_button(PC_9);
+Game flappy; // Creates an object of the game class
+DebouncedInterrupt pause_button(PC_9); // external library based interupt that features debouncing for the pause button
+AnalogIn ldr(A2); // light dependant resistor input for adaptive brightness
+Ticker read_ldr; // ticker for reading the light dependant resistor
 
 // FUNCTION PROTOTYPES
-void init();
-void main_menu();
-void render(Vector2D coord);
-Vector2D read_joystick();
-void game_over();
+void init(); // Init function
+Vector2D read_joystick(); // Reads joystick and applied deadzone
+
+void main_menu(); // Menu functions
 void options_menu();
-void pause_isr();
-void pause();
 int menu_offset_animation(int &logo_offset, int &animation_count);
 void menu_frame_delay(int &menu_choice, int &frame_count);
+void game_over();
+
+void render(Vector2D coord); // Renders game
+
+void pause_isr(); // Adds pause feature
+void pause(); // ^
+
+void adaptive_brightness_isr(); // adds adaptive LCD backlight brightness feature
+void adaptive_brightness(); // ^
 
 // VARIABLES
-char buffer[14]={0};
+char buffer[14]={0}; // For printing text on lcd using the N5110 library
 int score_text_offset; // used to offset the the score text to keep it centered
 volatile bool pause_button_flag = 0; // ISR variable for pause function
 volatile bool pause_game = 0; // pause function variable, used to pause the game
+volatile bool ldr_read_flag = 0; // ISR flag for adaptive brightness
+volatile bool adaptive_brightness_en = 0; // adaptive brightness enable variable
 
 int main(){
 
-    init(); // initialise the lcd and joystick
+    init();
     main_menu(); // main menu function
 
     while (true) { // main while loop for the runtime of the game
 
         pause(); // Pauses the game when the pause button is pressed
+        adaptive_brightness(); // Changes LCD brightness based on ambient light level, if this feature is enabled
 
         render(read_joystick()); // render function renders the game, takes joystick input and is the actual running of the game and its features.
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
 
-        if (flappy.get_collision()) {
+        if (flappy.get_collision()) { // On collision with a wall, the game ends
                 game_over();
         }
     }
@@ -74,11 +85,12 @@ void init() {
     joystick.init();        // set centre of the joystick
     lcd.init(LPH7366_1);    // initialise the lcd
     lcd.setContrast(0.55);  // set contrast to 55%
-    lcd.setBrightness(0.5); // set brightness
+    if (!adaptive_brightness_en) {lcd.setBrightness(0.5);} // set initial lcd brightness if adaptive brightness is not on
     js_button.mode(PullUp); // Sets internal pull down resistor, this is adequate for the frequency of button presses
     flappy.init(); // Game init
-    score_text_offset = 40;
+    score_text_offset = 40; // sets score text offset to initial value
     pause_button.attach(&pause_isr, IRQ_FALL, 200, true); // Checks for falling edge on pause button to update run ISR
+    read_ldr.attach(&adaptive_brightness_isr, 2s); // Sets ldr_read_flag high every 2 seconds for the adaptive brightness feature
 }
 
 void render(Vector2D coord) { // Funtion to render the game on the screen, passes joystick and LCD object to the game object
@@ -92,7 +104,7 @@ void render(Vector2D coord) { // Funtion to render the game on the screen, passe
     lcd.printString(buffer,score_text_offset,1); // print score to display
 
     if (pause_button_flag) { // When the pause flag is set high by ISR, pause text is printed to LCD
-        lcd.drawSprite(26, 16, 10, 32, (int*) pause_text);
+        lcd.drawSprite(26, 16, 10, 32, (int*) pause_text); // Draws pause on the screen when the game is paused
         pause_game = 1; // pause_game variable set high to put MCU to sleep at the start of the next frame
     }
 
@@ -103,27 +115,30 @@ void render(Vector2D coord) { // Funtion to render the game on the screen, passe
 void main_menu() { // Function to render the main menu items and handle menu choice through user input
 
     static int menu_choice = 0; // static will ensure when going back to main_menu from a submenu, the last selected option will remain selected
-    int frame_count = 0; 
+    int frame_count = 0; // used for frame based delay
     static int logo_offset = -16; // This means the logo offset is drawn out of bounds at the top by -15-1 as that is the height of it, so it can scroll in, static ensures this only happens at the start of the game
-    static int animation_count = 0;
-    bool button_en = 0;
+    static int animation_count = 0; // used for animating the logo text
+    bool button_en = 0; // used for frame based delay
 
     while (true) {
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
+        adaptive_brightness(); // Changes LCD brightness based on ambient light level, if this feature is enabled
         menu_frame_delay(menu_choice, frame_count);
 
         lcd.clear();
 
         lcd.drawSprite(6, menu_offset_animation(logo_offset, animation_count), 15, 72, (int*)flappy_logo); // Game logo
         
-        lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
+        //first menu item and box
+        lcd.drawSprite(16, 19, 7, 26, (int*)play_text);
         lcd.drawSprite(5, 19, 7, 7, (int*)box);
 
         //second menu item and box
-        lcd.drawSprite(16, 29, 7, 46, (int*)tutorial_text);
+        lcd.drawSprite(16, 29, 7, 49, (int*)tutorial_text);
         lcd.drawSprite(5, 29, 7, 7, (int*)box);
 
         //third menu item and box
+        lcd.drawSprite(16, 39, 7, 43, (int*)options_text_small);
         lcd.drawSprite(5, 39, 7, 7, (int*)box);
 
         switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
@@ -140,7 +155,7 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         lcd.refresh();
 
-        if (frame_count == frame_delay) {
+        if (frame_count == frame_delay) { // this adds a frame delay before the next input can be registered to give time to lift off the button 
             button_en = 1;
         }
 
@@ -156,8 +171,9 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         else if (menu_choice == 2 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
-            printf("Menu choice 2 \n");
-            options_menu();
+            options_menu(); // goes into options menu
+            frame_count = 0; // resets frame delay
+            button_en = 0; // ^
         }
 
         pause_button_flag = 0; // do not want the game be be pausable from the main menu
@@ -200,24 +216,29 @@ void options_menu() {
     int logo_offset = 1; // a logo offset of 1 means the logo will not scroll in from out of bounds
     int animation_count = 0;
     bool button_en = 0;
+    bool vibration_en = 1; // variable to toggle vibration feature
 
     while (true) {
         thread_sleep_for(1000/FPS); // delay to set frame rate of the game
+        adaptive_brightness(); // Changes LCD brightness based on ambient light level, if this feature is enabled
         menu_frame_delay(menu_choice, frame_count);
 
         lcd.clear();
 
         lcd.drawSprite(14, menu_offset_animation(logo_offset, animation_count), 15, 56, (int*)options_text_big); // Options menu text
         
-        //lcd.drawSprite(16, 19, 7, 29, (int*)play_text); // first menu item and box
+        // first menu item and box
+        lcd.drawSprite(16, 19, 7, 53, (int*)vibration_text); 
         lcd.drawSprite(5, 19, 7, 7, (int*)box);
+        if (!vibration_en) {lcd.drawLine(14, 22, 70, 22, 1);} // draws a line across the vibration text if vibrations are disabled
 
         //second menu item and box
-        lcd.drawSprite(16, 29, 7, 46, (int*)tutorial_text);
+        lcd.drawSprite(16, 29, 7, 49, (int*)adaptive_brightness_text);
         lcd.drawSprite(5, 29, 7, 7, (int*)box);
+        if (!adaptive_brightness_en) {lcd.drawLine(14, 32, 66, 32, 1);} // draws a line across the text if the feature is disabled
 
         //third menu item and box
-        lcd.drawSprite(16, 39, 7, 46, (int*)tutorial_text); // BACK
+        lcd.drawSprite(16, 39, 7, 27, (int*)back_text); // BACK
         lcd.drawSprite(5, 39, 7, 7, (int*)box);
 
         switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
@@ -241,16 +262,42 @@ void options_menu() {
         if (menu_choice == 0 and js_button.read() == 0 and button_en) { // If statements to go into the menu item when the Joystick button is pressed
             vibration(MEDIUM);
             printf("Options menu 1 \n");
+
+            if (vibration_en) { // if the vibration is currently on and the button is pressed on this menu, it will run vibration(OFF) disabling vibrations
+                vibration(OFF);
+            }
+            else {
+                vibration(ON);
+            }
+            vibration_en = !vibration_en; // the vibration_en variable is inverted everytime this runs / menu option is clicked
+
+            frame_count = 0; // this adds a frame delay before the next input can be registered to give time to lift off the button 
+            button_en = 0; // ^
         }
 
         else if (menu_choice == 1 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
             printf("Options menu 2 \n");
+
+            adaptive_brightness_en = !adaptive_brightness_en; // adaptive_brightness_en is inverted everytime this runs / menu option is clicked
+
+            if (!adaptive_brightness_en) {
+                lcd.setBrightness(0.50); // if adaptive brightness is disabled, brightness returns to default value.
+                read_ldr.detach(); // detaches the Ticker to preserve system resources
+                } 
+            else {
+                read_ldr.attach(&adaptive_brightness_isr, 2s); // Ticker is reattached
+                ldr_read_flag = 1; // Flag set to 1 so brightness is updated ASAP
+            }
+
+            frame_count = 0; // this adds a frame delay before the next input can be registered to give time to lift off the button 
+            button_en = 0; // ^
+
         }
 
         else if (menu_choice == 2 and js_button.read() == 0 and button_en) { // goes back to main menu
             vibration(MEDIUM);
-            main_menu();
+            break; // breaks out of option menu while loop, going back to main menu
         }
 
         pause_button_flag = 0; // do not want the game be be pausable from the main menu
@@ -267,7 +314,7 @@ void pause() {
         sleep(); // Puts MCU to sleep to save power
     }
     if (pause_game == 1) {
-        thread_sleep_for(100);
+        thread_sleep_for(100); // Slight delay before going back into the game to prevent instant re-pausing
     }
     pause_game = 0; // Resets pause_game variable
 }
@@ -304,5 +351,16 @@ void menu_frame_delay(int &menu_choice, int &frame_count) {
         menu_choice = (menu_choice - 1 + 3) % 3;
         frame_count = 0;
         vibration(SHORT);
+    }
+}
+
+void adaptive_brightness_isr() { // ISR only updates the flag that triggers the adaptive brightness functionality in another function
+    ldr_read_flag = 1; 
+}
+
+void adaptive_brightness() {
+    if (ldr_read_flag and adaptive_brightness_en) { // If the flag is high and the feature is enabled.
+        lcd.setBrightness(ldr.read()); // set brightness based on light dependant resistor
+        ldr_read_flag = 0; // sets flag low so brightness is only updated next when the ticker sets the flag high
     }
 }

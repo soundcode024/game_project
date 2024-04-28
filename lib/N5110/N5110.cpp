@@ -64,7 +64,7 @@ void N5110::init(LCD_Type const lcd){
     normalMode();           // normal video mode by default
     clearRAM();             // RAM is undefined at power-up so clear to be sure
     clear();                // clear buffer
-    setBrightness(0.5);
+    //setBrightness(0.5);
 }
 
 // sets normal video mode (black on white)
