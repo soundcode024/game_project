@@ -39,11 +39,13 @@ Ticker read_ldr; // ticker for reading the light dependant resistor
 void init(); // Init function
 Vector2D read_joystick(); // Reads joystick and applied deadzone
 
-void main_menu(); // Menu functions
-void options_menu();
-int menu_offset_animation(int &logo_offset, int &animation_count);
-void menu_frame_delay(int &menu_choice, int &frame_count);
-void game_over();
+void main_menu(); // Main menu function
+void options_menu(); // Options menu function
+void tutorial_menu(); // Tutorial text display function
+int menu_offset_animation(int &logo_offset, int &animation_count); // Functions for running the menu
+void menu_frame_delay(int &menu_choice, int &frame_count); // ^
+void menu_draw_boxes(int const &menu_choice); // ^
+void game_over(); // Game over fuction
 
 void render(Vector2D coord); // Renders game
 
@@ -135,29 +137,16 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         lcd.drawSprite(6, menu_offset_animation(logo_offset, animation_count), 15, 72, (int*)flappy_logo); // Game logo
         
-        //first menu item and box
+        //first menu item
         lcd.drawSprite(16, 19, 7, 26, (int*)play_text);
-        lcd.drawSprite(5, 19, 7, 7, (int*)box);
 
-        //second menu item and box
+        //second menu item
         lcd.drawSprite(16, 29, 7, 49, (int*)tutorial_text);
-        lcd.drawSprite(5, 29, 7, 7, (int*)box);
 
-        //third menu item and box
+        //third menu item
         lcd.drawSprite(16, 39, 7, 43, (int*)options_text_small);
-        lcd.drawSprite(5, 39, 7, 7, (int*)box);
 
-        switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
-            case 0:
-                lcd.drawSprite(5, 19, 7, 7, (int*)box_selected);
-                break;
-            case 1:
-                lcd.drawSprite(5, 29, 7, 7, (int*)box_selected);
-                break;
-            case 2:
-                lcd.drawSprite(5, 39, 7, 7, (int*)box_selected);
-                break;
-        }
+        menu_draw_boxes(menu_choice);
 
         lcd.refresh();
 
@@ -172,7 +161,9 @@ void main_menu() { // Function to render the main menu items and handle menu cho
 
         else if (menu_choice == 1 and js_button.read() == 0 and button_en) {
             vibration(MEDIUM);
-            printf("Menu choice 1 = TUTORIAL \n");
+            tutorial_menu(); // displays tutorial
+            frame_count = 0; // resets frame delay
+            button_en = 0; // ^
         }
 
         else if (menu_choice == 2 and js_button.read() == 0 and button_en) {
@@ -236,31 +227,19 @@ void options_menu() {
 
         lcd.drawSprite(14, menu_offset_animation(logo_offset, animation_count), 15, 56, (int*)options_text_big); // Options menu text
         
-        // first menu item and box
+        // first menu item
         lcd.drawSprite(16, 19, 7, 53, (int*)vibration_text); 
-        lcd.drawSprite(5, 19, 7, 7, (int*)box);
-        if (!vibration_en) {lcd.drawLine(14, 22, 70, 22, 1);} // draws a line across the vibration text if vibrations are disabled
+        if (!vibration_en) {lcd.drawLine(14, 22, 70, 22, 1);} // draws a line across the text if the feature is disabled
 
-        //second menu item and box
+        //second menu item
         lcd.drawSprite(16, 29, 7, 49, (int*)adaptive_brightness_text);
-        lcd.drawSprite(5, 29, 7, 7, (int*)box);
         if (!adaptive_brightness_en) {lcd.drawLine(14, 32, 66, 32, 1);} // draws a line across the text if the feature is disabled
 
-        //third menu item and box
+        //third menu item
         lcd.drawSprite(16, 39, 7, 27, (int*)back_text); // BACK
-        lcd.drawSprite(5, 39, 7, 7, (int*)box);
 
-        switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
-            case 0:
-                lcd.drawSprite(5, 19, 7, 7, (int*)box_selected);
-                break;
-            case 1:
-                lcd.drawSprite(5, 29, 7, 7, (int*)box_selected);
-                break;
-            case 2:
-                lcd.drawSprite(5, 39, 7, 7, (int*)box_selected);
-                break;
-        }
+        menu_draw_boxes(menu_choice);
+
 
         lcd.refresh();
 
@@ -314,6 +293,54 @@ void options_menu() {
     }
 }
 
+void tutorial_menu() {
+
+    lcd.clear();
+
+    sprintf(buffer,"EVADE  WALLS!");
+    lcd.printString(buffer,3,0);
+    sprintf(buffer,"They speed up"); 
+    lcd.printString(buffer,0,1); 
+    sprintf(buffer,"above 5 point");
+    lcd.printString(buffer,0,2);
+    sprintf(buffer,"s. Try to get");
+    lcd.printString(buffer,0,3);
+    sprintf(buffer,"a high score.");
+    lcd.printString(buffer,0,4);
+    sprintf(buffer,"THEN BEAT IT!");
+    lcd.printString(buffer,3,5);
+
+
+    lcd.refresh();
+
+    thread_sleep_for(200); // delay to stop the menu exiting instantly as the joystick button may still be held
+    while (js_button.read()) {sleep();} // waits for joystick button to be pressed before continuing
+
+
+    thread_sleep_for(200); // delay to stop the menu exiting instantly as the joystick button may still be held
+
+    lcd.clear();
+
+    sprintf(buffer,"Move in all d");
+    lcd.printString(buffer,0,0);
+    sprintf(buffer,"irections and"); 
+    lcd.printString(buffer,0,1); 
+    sprintf(buffer,"find a strate");
+    lcd.printString(buffer,0,2);
+    sprintf(buffer,"gy. To pause ");
+    lcd.printString(buffer,0,3);
+    sprintf(buffer,"press PAUSE. ");
+    lcd.printString(buffer,0,4);
+    sprintf(buffer,"GOOD LUCK xD");
+    lcd.printString(buffer,6,5);
+
+
+    lcd.refresh();
+
+    thread_sleep_for(200); // delay to stop the menu exiting instantly as the joystick button may still be held
+    while (js_button.read()) {sleep();} // waits for joystick button to be pressed before continuing
+}
+
 void pause_isr() { // Interupt service routine for the pause button, toggles flag when called
     pause_button_flag = !pause_button_flag;
 }
@@ -360,6 +387,25 @@ void menu_frame_delay(int &menu_choice, int &frame_count) {
         menu_choice = (menu_choice - 1 + 3) % 3;
         frame_count = 0;
         vibration(SHORT);
+    }
+}
+
+void menu_draw_boxes(int const &menu_choice) { // Function to draw the menu option boxes
+
+    lcd.drawSprite(5, 19, 7, 7, (int*)box); // Draws menu selection boxes
+    lcd.drawSprite(5, 29, 7, 7, (int*)box);
+    lcd.drawSprite(5, 39, 7, 7, (int*)box);
+
+    switch (menu_choice) { // draws a box with a cross in it depending on which menu item is selected
+        case 0:
+            lcd.drawSprite(5, 19, 7, 7, (int*)box_selected);
+            break;
+        case 1:
+            lcd.drawSprite(5, 29, 7, 7, (int*)box_selected);
+            break;
+        case 2:
+            lcd.drawSprite(5, 39, 7, 7, (int*)box_selected);
+            break;
     }
 }
 
