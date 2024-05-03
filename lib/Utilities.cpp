@@ -33,17 +33,17 @@ void vibration(vib_mode mode) {
             case OFF:
                 vibration_en = 0; // disables vibration
                 break;
-            case SHORT:
+            case SHORT: // Short vibration pulse
                 vibration_motor.write(1); // turns on vibration motor
                 vibration_timeout.attach(&vibration_isr, 20ms); // sets time after which ISR function will turn off motor
                 break;
-            case MEDIUM:
+            case MEDIUM: // Medium vibration pulse
                 vibration_motor.write(1);
                 vibration_timeout.attach(&vibration_isr, 50ms);
                 break;
-            case LONG:
+            case LONG: // Long vibration pulse
                 vibration_motor.write(1);
-                vibration_timeout.attach(&vibration_isr, 500ms);
+                vibration_timeout.attach(&vibration_isr, 300ms);
                 break;
         } 
     }

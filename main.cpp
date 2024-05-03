@@ -415,7 +415,7 @@ void adaptive_brightness_isr() { // ISR only updates the flag that triggers the 
 
 void adaptive_brightness() {
     if (ldr_read_flag and adaptive_brightness_en) { // If the flag is high and the feature is enabled.
-        lcd.setBrightness(ldr.read()); // set brightness based on light dependant resistor
+        lcd.setBrightness(1-ldr.read()); // set brightness based on light dependant resistor
         ldr_read_flag = 0; // sets flag low so brightness is only updated next when the ticker sets the flag high
     }
 }

@@ -86,7 +86,7 @@ void Game::score() {
     }
 
     for (j = -3; j <= 3; j++) { // there is a range of 7 pixels to register passing a wall to register score when the wall speed increases or the bird moves at its max velocity of 2 pixels per frame
-        if ((_bird_x_pos == static_cast<int>(_wall1.get_wall_x_pos())+wall_length+j) and _set_score_enable_1) {
+        if ((_bird_x_pos == static_cast<int>(_wall1.get_wall_x_pos())+wall_length+j) and _set_score_enable_1) { // If set_score_enable is true and and the birds x position lies within the detection field
             _score++;
             score_ramping(); // makes the score ramp up as score increments
             _set_score_enable_1 = 0; // resets score enable so a single wall cant increment the score multiple times
