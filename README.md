@@ -1,0 +1,1 @@
+This is a version of Flappy Bird running on the STM32 (NUCLEO-L476RG). It uses a NOKIA N5110 LCD and a joystick, libraries for which were provided to me for this project. This was my first independent project for university. 
